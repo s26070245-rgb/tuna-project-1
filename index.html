@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎮 12 Games · You Did It!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at 20% 10%,#1a0b2e,#0a0514 80%);padding:1rem;color:#f5eaff;display:flex;justify-content:center;align-items:flex-start}
+.hub{max-width:1050px;width:100%;background:rgba(20,12,35,.85);border-radius:2rem;padding:1.5rem;border:1px solid rgba(190,130,255,.25);box-shadow:0 30px 60px #000}
+h1{text-align:center;font-size:2rem;background:linear-gradient(135deg,#ffb86b,#ff5f9e,#b16cff,#6bcaff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.3rem}
+.sub{text-align:center;color:#cbb3ff;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.2rem;border-bottom:1px dashed #5b3a91;padding-bottom:.7rem}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:.55rem;margin-bottom:1.2rem}
+.card{background:rgba(35,20,60,.85);border:1px solid rgba(170,110,255,.35);border-radius:1rem;padding:.6rem .4rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;cursor:pointer;transition:.2s;text-align:center}
+.card:hover{background:rgba(60,35,100,.95);border-color:#d08bff;transform:translateY(-3px)}
+.card.active{background:linear-gradient(145deg,#4a2073,#1e0b38);border-color:#e0aaff;box-shadow:0 0 0 2px #b16cff}
+.card .e{font-size:1.6rem}
+.card .n{font-size:.72rem;font-weight:700;color:#f3e8ff;line-height:1.1}
+.card .t{font-size:.55rem;color:#d4b3ff;background:#1b0e2e;padding:.1rem .4rem;border-radius:20px;border:1px solid #6b3fa0}
+.stage{background:#100820;border-radius:1.5rem;padding:1.3rem;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border:1px solid #4a2a78;box-shadow:inset 0 8px 25px #00000055;position:relative;overflow:hidden}
+.msg{font-size:1.15rem;font-weight:700;color:#e5ccff;text-align:center;text-shadow:0 2px 15px #a855f7}
+button{background:linear-gradient(145deg,#6a2fc2,#3b1477);border:none;color:#fff;padding:.6rem 1.3rem;font-size:.85rem;font-weight:700;border-radius:40px;cursor:pointer;box-shadow:0 8px 10px -5px #00000090,0 0 0 1px #b47aff inset;transition:.15s;letter-spacing:.4px;text-transform:uppercase}
+button:hover:not(:disabled){background:linear-gradient(145deg,#8541e8,#4d1a94);transform:scale(1.03)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;align-items:center}
+.stat{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;font-size:.78rem;font-weight:700;color:#d4b3ff}
+.stat span{background:#1b0e2e;padding:.25rem .7rem;border-radius:30px;border:1px solid #6b3fa0}
+.res{font-size:1.05rem;font-weight:800;color:#ffe066;background:#1a0d2e;padding:.5rem 1.3rem;border-radius:40px;border:1px solid #b16cff;box-shadow:0 0 18px #8b2fd0;text-align:center}
+input{background:#150a28;border:2px solid #7b3fc0;color:#f3e8ff;padding:.6rem 1rem;font-size:.95rem;border-radius:40px;text-align:center;width:130px;outline:none;font-weight:700}
+input:focus{border-color:#c77dff;box-shadow:0 0 18px #a855f7}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;max-width:340px;width:100%}
+.mcard{aspect-ratio:1;background:linear-gradient(145deg,#3a1a6b,#1e0b38);border:2px solid #6b3fa0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;user-select:none;transition:.2s;box-shadow:0 4px 0 #150828}
+.mcard:hover:not(.flip):not(.match){transform:translateY(-2px);border-color:#c77dff}
+.mcard.flip{background:linear-gradient(145deg,#f0e0ff,#c9a3ff);color:#2a0a4a;border-color:#e0aaff}
+.mcard.match{background:linear-gradient(145deg,#5ef08a,#2bb45a);color:#0a2818;border-color:#7dffb0;cursor:default;box-shadow:0 0 15px #4ade80}
+.rbox{width:100%;max-width:380px;height:170px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;cursor:pointer;user-select:none;text-align:center;padding:1rem;transition:.15s}
+.r-wait{background:#2d1554;border:3px solid #6b3fa0;color:#d4b3ff}
+.r-go{background:linear-gradient(145deg,#ff5f9e,#c2185b);border:3px solid #ffb0d0;color:#fff;font-size:1.7rem;box-shadow:0 0 40px #ff5f9e}
+.r-done{background:linear-gradient(145deg,#5ef08a,#2bb45a);border:3px solid #b0ffc4;color:#0a2818}
+.r-early{background:linear-gradient(145deg,#ff4d4d,#b71c1c);border:3px solid #ffb0b0;color:#fff}
+.q{font-size:2rem;font-weight:900;color:#ffe066;text-shadow:0 0 25px #f59e0b;padding:.4rem 1.2rem;background:#1a0d2e;border-radius:20px;border:1px solid #b16cff;text-align:center}
+.tbar-bg{width:100%;max-width:340px;height:12px;background:#1b0e2e;border-radius:20px;border:1px solid #6b3fa0;overflow:hidden}
+.tbar{height:100%;background:linear-gradient(90deg,#5ef08a,#ffe066,#ff5f9e);width:100%;transition:width .1s linear}
+.simon-pad{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;max-width:240px;width:100%}
+.pad{aspect-ratio:1;border-radius:14px;cursor:pointer;transition:.1s;border:3px solid #000;opacity:.5}
+.pad.on{opacity:1;box-shadow:0 0 30px currentColor;transform:scale(1.03)}
+.pad.g{background:#4ade80;color:#4ade80}
+.pad.r{background:#ff5f9e;color:#ff5f9e}
+.pad.b{background:#6bcaff;color:#6bcaff}
+.pad.y{background:#ffe066;color:#ffe066}
+.slot{display:flex;gap:.5rem;justify-content:center}
+.slot .sym{width:65px;height:75px;background:#fff;color:#2a0a4a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:900;box-shadow:0 6px 0 #4a1d7a}
+.hist{font-size:.72rem;color:#b399dd;letter-spacing:1px;font-weight:600;min-height:1.2rem;text-align:center;max-width:100%;word-break:break-word}
+/* celebration overlay */
+.celebrate{position:absolute;inset:0;background:rgba(20,5,40,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;z-index:10;animation:pop .3s ease;text-align:center;padding:1rem}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.cel-big{font-size:3rem;font-weight:900;background:linear-gradient(135deg,#ffb86b,#ff5f9e,#b16cff,#6bcaff);-webkit-background-clip:text;background-clip:text;color:transparent;animation:bounce 1s infinite;letter-spacing:2px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cel-sub{font-size:1.2rem;color:#ffe066;font-weight:800;letter-spacing:1px}
+.cel-emoji{font-size:4rem;animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+/* guess the word */
+.word-hint{font-size:1rem;color:#b399dd;letter-spacing:3px;font-weight:700}
+.word-slots{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.word-slot{width:38px;height:48px;border-bottom:3px solid #b16cff;background:#1a0d2e;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:#ffe066;border-radius:6px 6px 0 0}
+.keyboard{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;max-width:400px;width:100%}
+.key{background:#2d1554;border:1px solid #6b3fa0;color:#f3e8ff;padding:.5rem .2rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;text-align:center;transition:.15s;user-select:none}
+.key:hover:not(.used){background:#4a2073;border-color:#c77dff}
+.key.used{opacity:.3;cursor:not-allowed}
+.key.correct{background:#2bb45a;border-color:#7dffb0;color:#0a2818}
+.key.wrong{background:#b71c1c;border-color:#ffb0b0;color:#fff}
+/* typing */
+.type-target{font-size:1.2rem;font-weight:700;color:#ffe066;background:#1a0d2e;padding:1rem;border-radius:14px;border:1px solid #b16cff;letter-spacing:1px;text-align:center;max-width:100%;line-height:1.6}
+.type-target .ok{color:#4ade80}
+.type-target .err{color:#ff5f9e;background:#3a0a1a;border-radius:4px}
+</style></head><body>
+<div class="hub">
+<h1>🎮 12 GAMES · YOU DID IT!</h1>
+<div class="sub">click a card · play instantly · win big</div>
+<div class="opts" id="opts"></div>
+<div class="stage" id="stage"><div class="msg" id="msg">Pick a game!</div><div id="area" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:.9rem"></div></div>
+</div>
+<script>
+// ============ GAME LIST ============
+const GAMES=[
+ {id:'memory',e:'🧩',n:'Memory',t:'match pairs'},
+ {id:'guess',e:'🧠',n:'Mind Reader',t:'1–100'},
+ {id:'coin',e:'⚡',n:'Streak Flip',t:'call it'},
+ {id:'reaction',e:'🎯',n:'Reaction',t:'how fast?'},
+ {id:'math',e:'➗',n:'Math Blitz',t:'60 sec'},
+ {id:'simon',e:'🎵',n:'Simon Says',t:'repeat'},
+ {id:'slots',e:'🎰',n:'Slot Machine',t:'spin'},
+ {id:'rps',e:'✊',n:'Rock Paper',t:'best of 5'},
+ {id:'word',e:'🔤',n:'Hangman',t:'guess word'},
+ {id:'typing',e:'⌨️',n:'Typing Race',t:'speed test'},
+ {id:'color',e:'🌈',n:'Color Match',t:'name not color'},
+ {id:'whack',e:'🐹',n:'Whack-a-Mole',t:'reflexes'}
+];
+const opts=document.getElementById('opts'),msg=document.getElementById('msg'),area=document.getElementById('area'),stage=document.getElementById('stage');
+let current='memory';
+GAMES.forEach(g=>{const c=document.createElement('div');c.className='card'+(g.id===current?' active':'');c.dataset.id=g.id;
+c.innerHTML=`<div class="e">${g.e}</div><div class="n">${g.n}</div><div class="t">${g.t}</div>`;
+c.onclick=()=>{current=g.id;document.querySelectorAll('.card').forEach(x=>x.classList.toggle('active',x.dataset.id===g.id));render()};
+opts.appendChild(c)});
+
+// ============ HELPERS ============
+const $=id=>document.getElementById(id);
+function msgSet(t){msg.textContent=t}
+function areaSet(html){area.innerHTML=html}
+// celebration overlay
+const CHEERS=['🎉 YOU DID IT!','🏆 AMAZING!','⭐ CHAMPION!','🔥 LEGENDARY!','💎 PERFECT!','🌟 BRILLIANT!','🚀 OUTSTANDING!','👑 UNSTOPPABLE!'];
+function celebrate(text,sub=''){
+ const ov=document.createElement('div');ov.className='celebrate';
+ const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+ ov.innerHTML=`<div class="cel-emoji">🎊</div><div class="cel-big">${cheer}</div>${text?`<div class="cel-sub">${text}</div>`:''}${sub?`<div style="color:#d4b3ff;font-size:.9rem">${sub}</div>`:''}<button id="celClose">CONTINUE</button>`;
+ stage.appendChild(ov);
+ const close=()=>ov.remove();
+ ov.querySelector('#celClose').onclick=close;
+ setTimeout(()=>{if(ov.parentNode)ov.remove()},4000);
+}
+function smallWin(t){ // small toast for small wins
+ const ov=document.createElement('div');ov.className='celebrate';
+ const cheer=['NICE!','GREAT!','SWEET!','YEAH!','BOOM!','POW!','YES!'][Math.floor(Math.random()*7)];
+ ov.innerHTML=`<div class="cel-big" style="font-size:2rem">${cheer} ${t}</div>`;
+ stage.appendChild(ov);
+ setTimeout(()=>ov.remove(),1400);
+}
+
+// ============ MEMORY ============
+function memory(){
+ msgSet('🧩 Match all pairs · fewest moves wins');
+ const syms=['🍎','🍌','🍇','🍒','🍕','🍩','⭐','🎵'];
+ let deck=[...syms,...syms].sort(()=>Math.random()-.5);
+ let flipped=[],matched=0,moves=0,lock=false;
+ areaSet(`<div class="stat"><span id="mm">MOVES: 0</span><span id="mp">PAIRS: 0/8</span></div>
+ <div class="grid4" id="mg"></div>
+ <div class="res" id="mr">find 8 pairs</div>
+ <button id="mreset">NEW GAME</button>`);
+ const g=$('mg');
+ function build(){g.innerHTML='';deck.forEach((s,i)=>{const d=document.createElement('div');d.className='mcard';d.dataset.i=i;d.dataset.s=s;d.textContent='?';d.onclick=()=>click(d);g.appendChild(d)})}
+ function click(d){if(lock||d.classList.contains('flip')||d.classList.contains('match'))return;
+  d.classList.add('flip');d.textContent=d.dataset.s;flipped.push(d);
+  if(flipped.length===2){moves++;$('mm').textContent='MOVES: '+moves;const[a,b]=flipped;
+   if(a.dataset.s===b.dataset.s){a.classList.add('match');b.classList.add('match');matched++;$('mp').textContent='PAIRS: '+matched+'/8';flipped=[];
+    if(matched===8){const r=moves<=10?'PERFECT':moves<=14?'GREAT':moves<=20?'GOOD':'NICE';
+     setTimeout(()=>celebrate(`Solved in ${moves} moves — ${r}!`,'YOU MATCHED THEM ALL!'),300)}}
+   else{lock=true;setTimeout(()=>{a.classList.remove('flip');b.classList.remove('flip');a.textContent='?';b.textContent='?';flipped=[];lock=false},700)}}}
+ build();
+ $('mreset').onclick=()=>{deck=deck.sort(()=>Math.random()-.5);flipped=[];matched=0;moves=0;lock=false;$('mm').textContent='MOVES: 0';$('mp').textContent='PAIRS: 0/8';$('mr').textContent='find 8 pairs';build()};
+}
+
+// ============ GUESS ============
+function guess(){
+ msgSet('🧠 Guess my number (1–100)');
+ const sn=Math.floor(Math.random()*100)+1;let lives=6,guesses=[],over=false;
+ areaSet(`<div class="stat"><span id="lv">❤️❤️❤️❤️❤️❤️</span><span id="gc">GUESSES: 0</span></div>
+ <div class="row"><input type="number" id="gi" min="1" max="100" placeholder="1–100"><button id="gb">GUESS</button></div>
+ <div class="res" id="gf">make your guess</div><div class="hist" id="gh">—</div>`);
+ function upLives(){$('lv').textContent='❤️'.repeat(lives)+'🖤'.repeat(6-lives)}
+ function hint(d){if(d<=3)return'🔥🔥🔥 SCORCHING';if(d<=8)return'🔥🔥 HOT';if(d<=15)return'🔥 WARM';if(d<=30)return'❄️ COLD';return'🧊 FREEZING'}
+ function chk(){if(over)return;const v=$('gi').value.trim();if(!v){$('gf').textContent='⛔ enter a number';return}
+  const n=Number(v);if(!Number.isInteger(n)||n<1||n>100){$('gf').textContent='⚠️ 1–100 only';return}
+  guesses.push(n);$('gc').textContent='GUESSES: '+guesses.length;$('gh').textContent=guesses.join(' · ');
+  if(n===sn){$('gf').textContent=`🎉 ${sn} — CORRECT!`;over=true;$('gi').disabled=true;$('gb').disabled=true;
+   celebrate(`${sn} is right!`,'YOU READ MY MIND!');return}
+  lives--;upLives();const d=Math.abs(n-sn);const dir=n<sn?'📈 too low':'📉 too high';
+  $('gf').textContent=`${dir} · ${hint(d)}`;
+  if(lives<=0){$('gf').textContent=`💀 Out of lives. It was ${sn}`;over=true;$('gi').disabled=true;$('gb').disabled=true}
+  else{$('gi').value='';$('gi').focus()}}
+ $('gb').onclick=chk;$('gi').onkeypress=e=>{if(e.key==='Enter'){e.preventDefault();chk()}};upLives();$('gi').focus();
+}
+
+// ============ COIN ============
+function coin(){
+ msgSet('⚡ Call the flip — build your streak');
+ let streak=0,best=0,flips=0,over=false,lock=false;
+ areaSet(`<div class="stat"><span id="cs">🔥 STREAK: 0</span><span id="cb">🏅 BEST: 0</span><span id="cf">FLIPS: 0</span></div>
+ <div id="cd" style="font-size:4rem">🪙</div>
+ <div class="res" id="cr">heads or tails?</div>
+ <div class="row"><button id="ch">HEADS</button><button id="ct">TAILS</button><button id="creset">RESET</button></div>
+ <div style="font-size:.75rem;color:#b399dd">⚠️ one wrong call ends the run</div>`);
+ function up(){$('cs').textContent='🔥 STREAK: '+streak;$('cb').textContent='🏅 BEST: '+best;$('cf').textContent='FLIPS: '+flips}
+ function flip(pick){if(over||lock)return;lock=true;flips++;$('cd').textContent='🌀';$('cr').textContent='flipping...';
+  setTimeout(()=>{const h=Math.random()<.5;const a=h?'heads':'tails';$('cd').textContent=h?'👑':'⚡';
+   if(a===pick){streak++;if(streak>best)best=streak;$('cr').textContent=`✅ ${a.toUpperCase()} · streak ${streak}`;
+    if(streak>=5)smallWin(`STREAK ${streak}!`)}
+   else{$('cr').textContent=`❌ ${a.toUpperCase()} — you called ${pick}`;over=true;$('ch').disabled=true;$('ct').disabled=true;
+    if(best>=3)celebrate(`Best streak: ${best}`,'STILL IMPRESSIVE!')}
+   up();lock=false},350)}
+ $('ch').onclick=()=>flip('heads');$('ct').onclick=()=>flip('tails');
+ $('creset').onclick=()=>{streak=0;best=0;flips=0;over=false;lock=false;$('ch').disabled=false;$('ct').disabled=false;$('cd').textContent='🪙';$('cr').textContent='heads or tails?';up()};up();
+}
+
+// ============ REACTION ============
+function reaction(){
+ msgSet('🎯 Click when it turns GREEN');
+ let state='idle',tid=null,t0=0,att=0,best=Infinity;
+ areaSet(`<div class="stat"><span id="rb">🏅 BEST: —</span><span id="ra">ATTEMPTS: 0</span></div>
+ <div class="rbox r-wait" id="rx">CLICK TO START</div>
+ <div class="res" id="rr">—</div>`);
+ const x=$('rx');
+ function wait(){state='waiting';x.className='rbox r-wait';x.textContent='WAIT FOR GREEN...';
+  const d=1200+Math.random()*2500;tid=setTimeout(()=>{state='ready';x.className='rbox r-go';x.textContent='CLICK NOW!';t0=performance.now()},d)}
+ x.onclick=()=>{
+  if(state==='idle'){att++;$('ra').textContent='ATTEMPTS: '+att;wait()}
+  else if(state==='waiting'){clearTimeout(tid);state='idle';x.className='rbox r-early';x.textContent='❌ TOO SOON! CLICK TO RETRY';$('rr').textContent='You jumped early.'}
+  else if(state==='ready'){const rt=Math.round(performance.now()-t0);state='idle';x.className='rbox r-done';x.textContent=rt+' ms — CLICK TO RETRY';
+   if(rt<best){best=rt;$('rb').textContent='🏅 BEST: '+best+' ms'}
+   const rank=rt<180?'SUPERHUMAN':rt<250?'EXCELLENT':rt<350?'GOOD':rt<500?'OK':'SLOW';
+   $('rr').textContent=`${rank} — ${rt} ms`;
+   if(rt<250)celebrate(`${rt} ms!`,'LIGHTNING FAST!')}}
+}
+
+// ============ MATH ============
+function math(){
+ msgSet('➗ Solve as many as you can in 60s');
+ let score=0,time=60,playing=false,tid=null,ans=null,lock=false;
+ areaSet(`<div class="stat"><span id="ms">SCORE: 0</span><span id="mt">⏱️ 60s</span></div>
+ <div class="tbar-bg"><div class="tbar" id="mtb"></div></div>
+ <div class="q" id="mq">Press START</div>
+ <div class="row" id="mc"><button id="mstart">START</button></div>
+ <div class="res" id="mr" style="font-size:.9rem">—</div>`);
+ function gen(){const ops=['+','-','*'];const op=ops[Math.floor(Math.random()*3)];let a,b,an;
+  if(op==='+'){a=Math.floor(Math.random()*50)+10;b=Math.floor(Math.random()*50)+10;an=a+b}
+  else if(op==='-'){a=Math.floor(Math.random()*50)+30;b=Math.floor(Math.random()*30)+1;an=a-b}
+  else{a=Math.floor(Math.random()*12)+2;b=Math.floor(Math.random()*12)+2;an=a*b}
+  ans=an;const wrong=new Set();while(wrong.size<3){const o=Math.floor(Math.random()*21)-10;const w=an+o;if(w!==an&&w>=0)wrong.add(w)}
+  const ch=[an,...wrong].sort(()=>Math.random()-.5);
+  $('mq').textContent=`${a} ${op} ${b} = ?`;$('mc').innerHTML='';
+  ch.forEach(c=>{const b=document.createElement('button');b.textContent=c;b.onclick=()=>pick(c);$('mc').appendChild(b)});lock=false}
+ function pick(c){if(!playing||lock)return;lock=true;
+  if(c===ans){score++;$('ms').textContent='SCORE: '+score;$('mr').textContent=`✅ ${c} — correct!`;
+   if(score>0&&score%5===0)smallWin(`${score} CORRECT!`)}
+  else{$('mr').textContent=`❌ ${c} — answer was ${ans}`}
+  setTimeout(()=>{if(playing)gen()},250)}
+ function end(){playing=false;clearInterval(tid);$('mq').textContent='⏰ TIME!';$('mc').innerHTML='';
+  const rank=score>=25?'MATH GOD':score>=18?'SHARP':score>=12?'GOOD':score>=6?'OK':'KEEP PRACTICING';
+  $('mr').textContent=`${rank} — score ${score}`;
+  celebrate(`Final score: ${score}`,'YOU DID IT!')}
+ $('mstart').onclick=()=>{score=0;time=60;playing=true;$('ms').textContent='SCORE: 0';$('mt').textContent='⏱️ 60s';$('mtb').style.width='100%';$('mr').textContent='Go!';gen();
+  tid=setInterval(()=>{time-=.1;if(time<=0){time=0;end()}$('mt').textContent='⏱️ '+Math.ceil(time)+'s';$('mtb').style.width=(time/60*100)+'%'},100)};
+}
+
+// ============ SIMON ============
+function simon(){
+ msgSet('🎵 Watch the pattern, then repeat it');
+ const colors=['g','r','b','y'];
+ let seq=[],userIdx=0,showing=false,playing=false,round=0,best=0;
+ areaSet(`<div class="stat"><span id="sr">ROUND: 0</span><span id="sb">🏅 BEST: 0</span></div>
+ <div class="simon-pad" id="sp">
+  <div class="pad g" data-c="g"></div><div class="pad r" data-c="r"></div>
+  <div class="pad b" data-c="b"></div><div class="pad y" data-c="y"></div>
+ </div>
+ <div class="res" id="sm">Press START</div>
+ <button id="sstart">START</button>`);
+ const pads=document.querySelectorAll('.pad');
+ function flash(c,dur=400){const p=document.querySelector(`.pad[data-c="${c}"]`);p.classList.add('on');setTimeout(()=>p.classList.remove('on'),dur)}
+ function playSeq(){showing=true;userIdx=0;let i=0;
+  const iv=setInterval(()=>{if(i>=seq.length){clearInterval(iv);showing=false;$('sm').textContent='YOUR TURN — repeat!';return}
+   flash(seq[i]);i++},650)}
+ function nextRound(){round++;$('sr').textContent='ROUND: '+round;
+  if(round%5===0)smallWin(`ROUND ${round}!`);
+  seq.push(colors[Math.floor(Math.random()*4)]);
+  setTimeout(playSeq,600)}
+ pads.forEach(p=>p.onclick=()=>{
+  if(!playing||showing)return;
+  const c=p.dataset.c;flash(c,200);
+  if(c===seq[userIdx]){userIdx++;if(userIdx===seq.length){if(round>best)best=round;$('sb').textContent='🏅 BEST: '+best;setTimeout(nextRound,700)}}
+  else{playing=false;$('sm').textContent=`❌ WRONG! You reached round ${round}`;$('sstart').textContent='PLAY AGAIN';
+   if(round>=5)celebrate(`You reached round ${round}!`,'AMAZING MEMORY!')}});
+ $('sstart').onclick=()=>{seq=[];round=0;playing=true;$('sr').textContent='ROUND: 0';$('sm').textContent='Watch carefully...';nextRound()};
+}
+
+// ============ SLOTS ============
+function slots(){
+ msgSet('🎰 Spin to match 3 symbols');
+ const syms=['🍒','🍋','🔔','💎','7️⃣','⭐'];
+ let credits=100,spinning=false,bestWin=0;
+ areaSet(`<div class="stat"><span id="sc">💎 CREDITS: 100</span><span id="sbest">🏆 BEST WIN: 0</span></div>
+ <div class="slot" id="sd"><div class="sym">❓</div><div class="sym">❓</div><div class="sym">❓</div></div>
+ <div class="res" id="sres">cost: 10 per spin</div>
+ <button id="spin">SPIN · 10</button>`);
+ function rnd(){return syms[Math.floor(Math.random()*syms.length)]}
+ $('spin').onclick=()=>{
+  if(spinning)return;
+  if(credits<10){$('sres').textContent='❌ Not enough credits!';return}
+  spinning=true;credits-=10;$('sc').textContent='💎 CREDITS: '+credits;
+  const roll=setInterval(()=>{const s=document.querySelectorAll('#sd .sym');s.forEach(x=>x.textContent=rnd())},80);
+  setTimeout(()=>{clearInterval(roll);
+   const s=document.querySelectorAll('#sd .sym');const a=s[0].textContent,b=s[1].textContent,c=s[2].textContent;
+   let win=0;
+   if(a===b&&b===c){win=a==='7️⃣'?200:a==='💎'?100:50}
+   else if(a===b||b===c||a===c){win=20}
+   if(win>0){credits+=win;if(win>bestWin)bestWin=win;$('sc').textContent='💎 CREDITS: '+credits;$('sbest').textContent='🏆 BEST WIN: '+bestWin;
+    $('sres').textContent=`🎉 WIN ${win}!`;
+    if(win>=50)celebrate(`You won ${win} credits!`,'JACKPOT BABY!');
+    else smallWin(`WIN ${win}!`)}
+   else{$('sres').textContent='😬 no match — try again'}
+   if(credits<10&&win===0){$('sres').textContent+=' · out of credits';$('spin').disabled=true}
+   spinning=false},1400)
+ };
+}
+
+// ============ RPS ============
+function rps(){
+ msgSet('✊ Beat the computer · first to 3 wins');
+ const moves={rock:'🪨',paper:'📄',scissors:'✂️'};
+ let you=0,cpu=0,over=false;
+ areaSet(`<div class="stat"><span id="ry">YOU: 0</span><span id="rc">CPU: 0</span></div>
+ <div class="row" id="rd" style="font-size:2rem"><div>
